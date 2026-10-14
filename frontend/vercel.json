@@ -1,0 +1,8 @@
+{
+  "rewrites": [
+    {
+      "source": "/api/genlayer",
+      "destination": "https://studio.genlayer.com/api"
+    }
+  ]
+}

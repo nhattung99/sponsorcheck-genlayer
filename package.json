@@ -1,0 +1,11 @@
+{
+  "name": "sponsorcheck",
+  "private": true,
+  "scripts": {
+    "prebuild": "node scripts/check-no-float-money.js",
+    "build": "npm run build --prefix frontend",
+    "check:float": "node scripts/check-no-float-money.js",
+    "test:money": "node frontend/src/__tests__/unit_conversion.test.js",
+    "test:ui": "node frontend/src/__tests__/sponsorship_poll.test.js"
+  }
+}
