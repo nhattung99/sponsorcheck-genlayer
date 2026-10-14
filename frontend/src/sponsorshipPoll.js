@@ -6,16 +6,16 @@ export function studioRpcUrl(origin) {
   return `${origin.replace(/\/$/, '')}/api/genlayer`;
 }
 
-export function formatWalletError(err, fallback = 'Yêu cầu ví thất bại') {
+export function formatWalletError(err, fallback = 'Wallet request failed') {
   const raw = `${err?.shortMessage || ''} ${err?.details || ''} ${err?.message || ''}`.toLowerCase();
   if (raw.includes('user rejected') || raw.includes('user denied') || raw.includes('user cancel')) {
-    return 'MetaMask đã hủy yêu cầu. Chuyển sang Genlayer Studio Network rồi bấm Confirm.';
+    return 'MetaMask cancelled the request. Switch to Genlayer Studio Network, then click Confirm.';
   }
   if (raw.includes('no address provided') || raw.includes('no account')) {
-    return 'Hãy kết nối ví trước, rồi thử lại.';
+    return 'Connect a wallet first, then try again.';
   }
   if (raw.includes('unrecognized chain') || raw.includes('chain disconnected') || raw.includes('4902')) {
-    return 'Hãy chấp nhận thêm Genlayer Studio Network trong MetaMask, rồi gửi lại giao dịch.';
+    return 'Approve adding Genlayer Studio Network in MetaMask, then send the transaction again.';
   }
   return err?.shortMessage || err?.message || fallback;
 }
@@ -214,29 +214,29 @@ export function urlHost(url) {
 export function independentSourceError(postUrls, referenceUrls) {
   const posts = (postUrls || []).map((u) => String(u).trim()).filter(Boolean);
   const refs = (referenceUrls || []).map((u) => String(u).trim()).filter(Boolean);
-  if (posts.length < 1) return 'Cần ít nhất 1 link bài đăng.';
-  if (refs.length < 2) return 'Cần ít nhất 2 link nguồn xác minh độc lập.';
+  if (posts.length < 1) return 'At least 1 post URL is required.';
+  if (refs.length < 2) return 'At least 2 independent reference URLs are required.';
   const postHosts = posts.map(urlHost);
   const refHosts = refs.map(urlHost);
   if (postHosts.some((h) => !h) || refHosts.some((h) => !h)) {
-    return 'Mỗi link phải bắt đầu bằng http:// hoặc https://.';
+    return 'Every link must start with http:// or https://.';
   }
   if (new Set(refHosts).size < 2) {
-    return 'Hai nguồn xác minh phải ở hai website khác nhau.';
+    return 'The two reference sources must be on different websites.';
   }
   for (const host of refHosts) {
     if (postHosts.includes(host)) {
-      return 'Nguồn xác minh phải khác website của bài đăng.';
+      return 'A reference source must be on a different website from the post.';
     }
   }
   return '';
 }
 
 export const FLOW_STEPS = [
-  { id: 'create', label: '1. Tạo' },
-  { id: 'submit', label: '2. Nộp bài' },
-  { id: 'ai', label: '3. AI kiểm tra' },
-  { id: 'done', label: '4. Giải ngân' },
+  { id: 'create', label: '1. Create' },
+  { id: 'submit', label: '2. Submit post' },
+  { id: 'ai', label: '3. AI check' },
+  { id: 'done', label: '4. Payout' },
 ];
 
 export function flowCurrentStep(status) {
@@ -249,14 +249,14 @@ export function flowCurrentStep(status) {
 
 export function statusLabel(status) {
   const map = {
-    PENDING_POST: 'Chờ nộp bài',
-    SUBMITTED: 'Đã nộp, chờ AI',
-    REVISION_REQUESTED: 'Cần sửa bài',
-    RESOLVED_COMPLIANT: 'Đạt — đã trả influencer',
-    RESOLVED_NON_COMPLIANT: 'Không đạt — đã hoàn brand',
-    DISPUTED: 'Chưa đủ chắc — nộp lại bằng chứng',
-    PAYOUT_FAILED: 'Chuyển tiền lỗi',
-    EXPIRED_REFUNDED: 'Hết hạn — đã hoàn brand',
+    PENDING_POST: 'Waiting for the post',
+    SUBMITTED: 'Submitted, waiting for AI',
+    REVISION_REQUESTED: 'Revision needed',
+    RESOLVED_COMPLIANT: 'Compliant — paid the influencer',
+    RESOLVED_NON_COMPLIANT: 'Non-compliant — refunded the brand',
+    DISPUTED: 'Not confident enough — submit evidence again',
+    PAYOUT_FAILED: 'Payout failed',
+    EXPIRED_REFUNDED: 'Expired — refunded the brand',
   };
   return map[status] || status || '—';
 }
@@ -264,31 +264,31 @@ export function statusLabel(status) {
 export function nextActionHint({ status, isBrand, isInfluencer }) {
   const s = String(status || '');
   if (s === 'PENDING_POST' && isInfluencer) {
-    return { title: 'Đến lượt bạn nộp bài', body: 'Dán link bài đăng công khai và ít nhất 2 nguồn xác minh độc lập.' };
+    return { title: 'Your turn to submit the post', body: 'Paste a public post link and at least two independent verification sources.' };
   }
   if (s === 'PENDING_POST' && isBrand) {
-    return { title: 'Đang chờ influencer', body: 'Gửi mã hợp đồng cho influencer. Phí nằm trong escrow cho đến khi có kết quả hoặc hết hạn.' };
+    return { title: 'Waiting on the influencer', body: 'Share the sponsorship id. The fee stays in escrow until there is a result or the deadline passes.' };
   }
   if (s === 'SUBMITTED') {
-    return { title: 'Sẵn sàng kiểm tra', body: 'Bấm Yêu cầu AI kiểm tra. Validator chỉ đồng ý khi cùng một kết quả COMPLIANT hoặc NON_COMPLIANT.' };
+    return { title: 'Ready to check', body: 'Click Request an AI check. Validators agree only when they return the same COMPLIANT or NON_COMPLIANT result.' };
   }
   if (s === 'REVISION_REQUESTED' && isInfluencer) {
-    return { title: 'Bạn còn 1 lần sửa bài', body: 'Sửa bài cho đủ checklist rồi nộp lại. Tiền chưa bị đụng tới.' };
+    return { title: 'You have 1 revision left', body: 'Update the post so it meets the checklist, then submit again. The fee has not moved.' };
   }
   if (s === 'DISPUTED') {
-    return { title: 'Bằng chứng chưa đủ chắc', body: 'Influencer có thể nộp lại bài hoặc link lưu trữ rõ hơn. Tiền vẫn nằm trong escrow.' };
+    return { title: 'The evidence is not confident enough', body: 'The influencer can submit the post again, or a clearer archive link. The fee stays in escrow.' };
   }
   if (s === 'PAYOUT_FAILED') {
-    return { title: 'Giải ngân chưa xong', body: 'Phán quyết đã có. Bấm Thử lại để chuyển đúng số phí, không chạy lại AI.' };
+    return { title: 'Payout did not finish', body: 'The verdict is already stored. Click Try again to send the same fee. AI will not run again.' };
   }
   if (s === 'RESOLVED_COMPLIANT') {
-    return { title: 'Đã giải ngân cho influencer', body: 'Bài đăng đáp ứng đủ checklist.' };
+    return { title: 'Paid the influencer', body: 'The post met every checklist item.' };
   }
   if (s === 'RESOLVED_NON_COMPLIANT') {
-    return { title: 'Đã hoàn phí cho brand', body: 'Bài không đủ checklist sau lần sửa, hoặc đã quá hạn.' };
+    return { title: 'Refunded the brand', body: 'The post missed the checklist after the revision, or the deadline had passed.' };
   }
   if (s === 'EXPIRED_REFUNDED') {
-    return { title: 'Đã hoàn phí vì hết hạn', body: 'Không có bài được chấp nhận trước hạn.' };
+    return { title: 'Refunded because the deadline passed', body: 'No post was accepted before the deadline.' };
   }
-  return { title: 'Theo dõi hợp đồng', body: 'Kết nối ví studionet để tạo hoặc nộp bài.' };
+  return { title: 'Follow this sponsorship', body: 'Connect a studionet wallet to create a deal or submit a post.' };
 }

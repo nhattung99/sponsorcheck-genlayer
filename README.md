@@ -8,7 +8,7 @@ SponsorCheck holds the sponsorship fee in **one Intelligent Contract**. The bran
 
 There is no percentage, no tolerance band, and no second money figure. The whole `fee_amount` goes to the influencer or back to the brand.
 
-> SponsorCheck chết nếu không có GenLayer: không có smart contract EVM nào đọc hiểu được nội dung bài đăng mạng xã hội để đối chiếu với checklist hợp đồng bằng ngôn ngữ tự nhiên, và không có bên thứ ba nào đủ rẻ để kiểm duyệt từng hợp đồng tài trợ nhỏ giữa brand và influencer — chỉ có đồng thuận AI phi tập trung của GenLayer mới làm được với chi phí gần bằng 0.
+> SponsorCheck dies without GenLayer: no EVM contract can read a social post and match it to a natural-language checklist, and no third party is cheap enough to referee each small brand-influencer deal. Only GenLayer's decentralized AI consensus can do this at near-zero cost.
 
 ## Live app
 
@@ -17,7 +17,8 @@ Not deployed yet. The frontend boots without a contract address (warning banner,
 ## Deployed contract
 
 - **Network:** studionet only
-- **Address:** pending manual deploy (`Result: SUCCESS`), then set `VITE_CONTRACT_ADDRESS`
+- **Address:** `0xCdC820B2961F728122954E8a3BdD696B2a912CC9`
+- **Explorer:** https://genlayer-explorer.vercel.app/address/0xCdC820B2961F728122954E8a3BdD696B2a912CC9
 
 ## Why one revision, and why the verdict is binary
 
@@ -138,6 +139,6 @@ Covered paths: compliant payout to the influencer, first non-compliant revision 
 
 ## Frontend
 
-Checklist items are checkboxes. One optional short custom line. Fee chips plus a numeric field. Deadline is a dropdown: 24 giờ, 3 ngày, 7 ngày, 14 ngày. Post and reference rows have a paste button. The submit step shows the archive / Instagram warning. `REVISION_REQUESTED` says the influencer still has one fix. `DISPUTED` can resubmit. `PAYOUT_FAILED` has **Thử lại**. The sticky banner states that the only cost is GenLayer gas.
+Checklist items are checkboxes. One optional short custom line. Fee chips plus a numeric field. Deadline is a dropdown: 24 hours, 3 days, 7 days, 14 days. Post and reference rows have a paste button. The submit step shows the archive / Instagram warning. `REVISION_REQUESTED` says the influencer still has one fix. `DISPUTED` can resubmit. `PAYOUT_FAILED` has **Try again**. The sticky banner states that the only cost is GenLayer gas.
 
 Wallet traffic stays on `chains.studionet`. Reads go through `/api/genlayer`, which Vercel and the Vite dev server proxy to `https://studio.genlayer.com/api`.

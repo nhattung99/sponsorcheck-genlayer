@@ -124,17 +124,17 @@ export default function App() {
 
   const requireReady = () => {
     if (!hasContractAddress) {
-      throw new Error('Chưa có địa chỉ contract. Deploy trên studionet, rồi đặt VITE_CONTRACT_ADDRESS.');
+      throw new Error('No contract address is configured. Deploy on studionet, then set VITE_CONTRACT_ADDRESS.');
     }
     if (!account) {
-      throw new Error('Hãy kết nối ví trước.');
+      throw new Error('Connect a wallet first.');
     }
   };
 
   const connectWallet = async () => {
     try {
       if (!window.ethereum) {
-        setErrorMessage('Cần MetaMask để dùng SponsorCheck trên studionet.');
+        setErrorMessage('MetaMask is required to use SponsorCheck on studionet.');
         return;
       }
       setErrorMessage(null);
@@ -147,7 +147,7 @@ export default function App() {
       }
       setAccount(addr);
     } catch (err) {
-      setErrorMessage(formatWalletError(err, 'Không kết nối được ví'));
+      setErrorMessage(formatWalletError(err, 'Could not connect the wallet'));
     }
   };
 
@@ -183,12 +183,12 @@ export default function App() {
       const loaded = await loadSponsorships(client, account);
       setRows(loaded.rows);
       if (!silent && !loaded.rows.length && loaded.listError) {
-        setErrorMessage(loaded.listError.message || 'Không đọc được danh sách hợp đồng');
+        setErrorMessage(loaded.listError.message || 'Could not load sponsorships');
       }
       return loaded;
     } catch (err) {
       console.warn('list_sponsorships failed:', err);
-      if (!silent) setErrorMessage(err?.message || 'Không đọc được danh sách hợp đồng');
+      if (!silent) setErrorMessage(err?.message || 'Could not load sponsorships');
       return { rows: [], count: 0 };
     } finally {
       if (!silent) setLoading(false);
@@ -256,9 +256,9 @@ export default function App() {
         const status = String(settled?.status || '');
         if (!status || status === (fromStatus || 'SUBMITTED')) {
           const explorer = txExplorerUrl(hash);
-          const stuck = `Chưa thấy phán quyết mới. Bấm làm mới sau vài phút. Dùng bài công khai hoặc link archive, không dùng Instagram/TikTok. Explorer: ${explorer}`;
+          const stuck = `No new verdict yet. Refresh in a few minutes. Use a public post or an archive link. Instagram and TikTok often cannot be read. Explorer: ${explorer}`;
           if (receiptLooksFailed(receipt)) {
-            throw new Error(`GenVM đã hoàn tác lần kiểm tra này. ${stuck}`);
+            throw new Error(`GenVM rolled this check back. ${stuck}`);
           }
           setErrorMessage(stuck);
         }
@@ -284,7 +284,7 @@ export default function App() {
       }
       return hash;
     } catch (err) {
-      setErrorMessage(formatWalletError(err, 'Giao dịch thất bại'));
+      setErrorMessage(formatWalletError(err, 'Transaction failed'));
       return null;
     } finally {
       setLoading(false);
@@ -296,15 +296,15 @@ export default function App() {
     event.preventDefault();
     try {
       const checklist = selectedChecklist(checked, customOpen ? customText : '');
-      if (!description.trim()) throw new Error('Hãy mô tả chiến dịch.');
-      if (checklist.length < 1) throw new Error('Chọn ít nhất 1 mục checklist.');
+      if (!description.trim()) throw new Error('Describe the campaign.');
+      if (checklist.length < 1) throw new Error('Select at least one checklist item.');
       if (!/^0x[0-9a-fA-F]{40}$/.test(influencerAddr.trim())) {
-        throw new Error('Địa chỉ influencer phải là 0x và 40 ký tự hex.');
+        throw new Error('The influencer address must be 0x followed by 40 hex characters.');
       }
       if (sameAddress(influencerAddr.trim(), account)) {
-        throw new Error('Brand và influencer không được trùng ví.');
+        throw new Error('The brand and the influencer must use different wallets.');
       }
-      if (feeWei <= 0n) throw new Error('Phí tài trợ phải lớn hơn 0.');
+      if (feeWei <= 0n) throw new Error('The sponsorship fee must be greater than 0.');
       const preset = DEADLINE_PRESETS.find((item) => item.id === deadlineId) || DEADLINE_PRESETS[2];
       const deadline = deadlineUnixFromPreset(preset.seconds);
       await runWrite(
@@ -313,7 +313,7 @@ export default function App() {
         feeWei
       );
     } catch (err) {
-      setErrorMessage(err?.message || 'Không tạo được hợp đồng');
+      setErrorMessage(err?.message || 'Could not create the sponsorship');
     }
   };
 
@@ -326,7 +326,7 @@ export default function App() {
       if (problem) throw new Error(problem);
       await runWrite('submit_post', [String(activeId), posts, refs]);
     } catch (err) {
-      setErrorMessage(err?.message || 'Không nộp được bài');
+      setErrorMessage(err?.message || 'Could not submit the post');
     }
   };
 
@@ -336,7 +336,7 @@ export default function App() {
       setCopied(key);
       setTimeout(() => setCopied(''), 1600);
     } catch (err) {
-      setErrorMessage('Không đọc được clipboard. Hãy dán thủ công.');
+      setErrorMessage('Could not read the clipboard. Paste the text manually.');
     }
   };
 
@@ -364,7 +364,7 @@ export default function App() {
   return (
     <div className="app">
       <div className="free-banner">
-        Miễn phí sử dụng — chỉ tốn phí gas mạng GenLayer khi ký giao dịch. Không có phí nền tảng nào khác.
+        Free to use — you only pay GenLayer network gas when you sign a transaction. There is no platform fee.
       </div>
 
       <header className="header">
@@ -372,21 +372,21 @@ export default function App() {
           <div className="brand-mark"><Megaphone size={20} /></div>
           <div>
             <h1>SponsorCheck</h1>
-            <p>Escrow tài trợ · studionet</p>
+            <p>Sponsorship escrow · studionet</p>
           </div>
         </div>
         <div className="header-right">
           <div className="network"><span className="dot" /> {networkName}</div>
           <button className="btn-secondary" onClick={connectWallet} type="button">
             <Wallet size={16} />
-            {account ? shortAddr(account) : 'Kết nối ví'}
+            {account ? shortAddr(account) : 'Connect wallet'}
           </button>
         </div>
       </header>
 
       {!hasContractAddress && (
         <div className="missing-banner" role="status">
-          Chưa có địa chỉ contract. App vẫn mở được — chưa gửi giao dịch. Sau khi deploy tay trên studionet và thấy Result: SUCCESS, đặt <span className="mono">VITE_CONTRACT_ADDRESS</span> rồi build lại.
+          No contract address yet. The app still opens and will not send a transaction. After a studionet deploy shows Result: SUCCESS, set <span className="mono">VITE_CONTRACT_ADDRESS</span> and build again.
         </div>
       )}
 
@@ -397,28 +397,28 @@ export default function App() {
       )}
 
       <p className="pitch">
-        Brand khóa phí GEN. Influencer nộp bài kèm nguồn xác minh. AI chỉ trả COMPLIANT hoặc NON_COMPLIANT — đủ checklist thì trả influencer, thiếu thì được sửa 1 lần, sau đó hoặc quá hạn thì hoàn brand.
+        The brand locks a GEN fee. The influencer submits the post plus verification sources. AI returns only COMPLIANT or NON_COMPLIANT. A full checklist pays the influencer. A miss gets one revision, then a refund to the brand if it is still missing or the deadline has passed.
       </p>
 
       {errorMessage && (
         <div className="error-banner" role="alert">
           <AlertTriangle size={16} />
           <span>{errorMessage}</span>
-          <button type="button" className="btn-ghost" onClick={() => setErrorMessage(null)}>Đóng</button>
+          <button type="button" className="btn-ghost" onClick={() => setErrorMessage(null)}>Close</button>
         </div>
       )}
       {txHash && (
         <a className="tx-link" href={txExplorerUrl(txHash)} target="_blank" rel="noreferrer">
-          Xem giao dịch trên explorer
+          View transaction on the explorer
         </a>
       )}
 
       <div className="layout">
         <form className="card" onSubmit={onCreate}>
-          <h2>Tạo hợp đồng</h2>
-          <p className="hint">Brand ký và gửi GEN vào escrow. Chỉ chọn checklist, mức phí và hạn — mô tả là ô chữ duy nhất.</p>
+          <h2>Create sponsorship</h2>
+          <p className="hint">The brand signs and sends GEN into escrow. Pick the checklist, fee, and deadline. The campaign description is the only free-text field.</p>
 
-          <label className="label">Địa chỉ influencer</label>
+          <label className="label">Influencer address</label>
           <div className="url-row">
             <input
               className="input mono"
@@ -431,14 +431,14 @@ export default function App() {
               className="btn-ghost"
               onClick={async () => {
                 try { setInfluencerAddr(await pasteClipboard()); }
-                catch { setErrorMessage('Không đọc được clipboard.'); }
+                catch { setErrorMessage('Could not read the clipboard.'); }
               }}
             >
-              <ClipboardPaste size={14} /> Dán
+              <ClipboardPaste size={14} /> Paste
             </button>
           </div>
 
-          <label className="label">Mô tả chiến dịch</label>
+          <label className="label">Campaign description</label>
           <textarea
             className="textarea"
             rows={4}
@@ -449,7 +449,7 @@ export default function App() {
           />
           <p className="hint">{DESCRIPTION_HINT}</p>
 
-          <label className="label">Checklist yêu cầu</label>
+          <label className="label">Requirements checklist</label>
           <div className="checks">
             {CHECKLIST_PRESETS.map((item) => (
               <label key={item.id} className="check">
@@ -463,20 +463,20 @@ export default function App() {
             ))}
           </div>
           <button type="button" className="btn-ghost" onClick={() => setCustomOpen((v) => !v)}>
-            {customOpen ? 'Ẩn yêu cầu khác' : 'Thêm yêu cầu khác'}
+            {customOpen ? 'Hide extra requirement' : 'Add another requirement'}
           </button>
           {customOpen && (
             <input
               className="input"
               maxLength={180}
-              placeholder="Yêu cầu ngắn, không bắt buộc"
+              placeholder="Short optional requirement"
               value={customText}
               onChange={(e) => setCustomText(e.target.value)}
             />
           )}
-          <p className="hint">{checklistPreview.length} mục sẽ ghi vào hợp đồng.</p>
+          <p className="hint">{checklistPreview.length} item(s) will be stored on the sponsorship.</p>
 
-          <label className="label">Phí tài trợ</label>
+          <label className="label">Sponsorship fee</label>
           <div className="chips">
             {FEE_PRESETS.map((preset) => (
               <button
@@ -495,9 +495,9 @@ export default function App() {
             value={feeStr}
             onChange={(e) => setFeeStr(sanitizeGenInput(e.target.value))}
           />
-          <p className="hint">Sẽ khóa {feeLabel(feeWei)} vào contract.</p>
+          <p className="hint">This will lock {feeLabel(feeWei)} in the contract.</p>
 
-          <label className="label">Hạn đăng bài</label>
+          <label className="label">Post deadline</label>
           <select className="select" value={deadlineId} onChange={(e) => setDeadlineId(e.target.value)}>
             {DEADLINE_PRESETS.map((preset) => (
               <option key={preset.id} value={preset.id}>{preset.label}</option>
@@ -505,30 +505,30 @@ export default function App() {
           </select>
 
           <button className="btn-primary" type="submit" disabled={loading}>
-            Tạo và khóa phí
+            Create and lock fee
           </button>
         </form>
 
         <section className="card">
           <div className="split">
-            <h2>Hợp đồng</h2>
+            <h2>Sponsorships</h2>
             <button type="button" className="btn-ghost" onClick={() => fetchRows()} disabled={loading || !hasContractAddress}>
-              <RefreshCw size={14} /> Làm mới
+              <RefreshCw size={14} /> Refresh
             </button>
           </div>
           <div className="filter-row">
             {[
-              ['all', 'Tất cả'],
-              ['brand', 'Tôi là brand'],
-              ['influencer', 'Tôi là influencer'],
+              ['all', 'All'],
+              ['brand', 'I am the brand'],
+              ['influencer', 'I am the influencer'],
             ].map(([id, label]) => (
               <button key={id} type="button" className={`chip${filter === id ? ' active' : ''}`} onClick={() => setFilter(id)}>
                 {label}
               </button>
             ))}
           </div>
-          {!hasContractAddress && <p className="empty">Danh sách hiện khi đã có địa chỉ contract trên studionet.</p>}
-          {hasContractAddress && visible.length === 0 && <p className="empty">Chưa có hợp đồng nào trong bộ lọc này.</p>}
+          {!hasContractAddress && <p className="empty">The list appears after a studionet contract address is configured.</p>}
+          {hasContractAddress && visible.length === 0 && <p className="empty">No sponsorships in this filter yet.</p>}
           <div className="list">
             {visible.map((row) => (
               <button
@@ -545,7 +545,7 @@ export default function App() {
                   <span className={statusClass(row.status)}>{statusLabel(row.status)}</span>
                 </div>
                 <p>{row.campaign_description}</p>
-                <p className="hint">{feeLabel(row.fee_amount)} · hạn {formatDeadline(row.post_deadline)}</p>
+                <p className="hint">{feeLabel(row.fee_amount)} · deadline {formatDeadline(row.post_deadline)}</p>
               </button>
             ))}
           </div>
@@ -556,13 +556,13 @@ export default function App() {
         <section className="card detail">
           <FlowStrip status={active.status} />
           <div className="split">
-            <h2>Hợp đồng #{active.sponsorship_id}</h2>
+            <h2>Sponsorship #{active.sponsorship_id}</h2>
             <button
               type="button"
               className="btn-ghost"
               onClick={() => copyText(`${window.location.origin}${window.location.pathname}?id=${active.sponsorship_id}`, 'share')}
             >
-              <Copy size={14} /> {copied === 'share' ? 'Đã chép' : 'Chia sẻ'}
+              <Copy size={14} /> {copied === 'share' ? 'Copied' : 'Share'}
             </button>
           </div>
           <p>{active.campaign_description}</p>
@@ -571,7 +571,7 @@ export default function App() {
             <span>Influencer {shortAddr(active.influencer)}</span>
             <span>{feeLabel(active.fee_amount)}</span>
             <span><Clock size={12} /> {formatDeadline(active.post_deadline)}</span>
-            <span>Sửa đã dùng: {String(active.revisions_used ?? 0)}/1</span>
+            <span>Revisions used: {String(active.revisions_used ?? 0)}/1</span>
           </div>
           {Array.isArray(active.requirements_checklist) && (
             <ul className="checklist-read">
@@ -588,7 +588,7 @@ export default function App() {
             <div className={`verdict ${String(active.verdict).toUpperCase() === 'COMPLIANT' ? 'verdict-compliant' : 'verdict-non'}`}>
               <div className="split">
                 <strong>{active.verdict}</strong>
-                <span>Độ chắc {String(active.confidence ?? 0)}/100</span>
+                <span>Confidence {String(active.confidence ?? 0)}/100</span>
               </div>
               <p className="reason">{active.verdict_reason}</p>
             </div>
@@ -605,7 +605,7 @@ export default function App() {
               onClick={() => runWrite('resolve_sponsorship', [String(active.sponsorship_id)], 0n, { resolving: active.sponsorship_id })}
             >
               <Scale size={16} />
-              {resolvingId === String(active.sponsorship_id) ? 'Đang đọc bài đăng và đối chiếu checklist…' : 'Yêu cầu AI kiểm tra'}
+              {resolvingId === String(active.sponsorship_id) ? 'Reading the post and checking the checklist…' : 'Request an AI check'}
             </button>
           )}
 
@@ -616,7 +616,7 @@ export default function App() {
               disabled={loading}
               onClick={() => runWrite('retry_resolution', [String(active.sponsorship_id)])}
             >
-              <RotateCcw size={16} /> Thử lại
+              <RotateCcw size={16} /> Try again
             </button>
           )}
 
@@ -627,23 +627,23 @@ export default function App() {
               disabled={loading}
               onClick={() => runWrite('claim_expired_refund', [String(active.sponsorship_id)])}
             >
-              Lấy lại phí (hết hạn)
+              Claim the fee (deadline passed)
             </button>
           )}
 
           {canSubmit && deadlinePassed(active.post_deadline) && (
-            <p className="revision-note">Đã quá hạn nộp bài. Brand có thể lấy lại phí.</p>
+            <p className="revision-note">The post deadline has passed. The brand can claim the fee back.</p>
           )}
 
           {canSubmit && !deadlinePassed(active.post_deadline) && (
             <form onSubmit={onSubmitPost}>
               <div className="social-banner">
-                Dùng bài đăng công khai (X, YouTube, blog) hoặc link bản lưu trữ archive. Instagram/TikTok thường chặn truy cập tự động nên AI có thể không đọc được.
+                Use a public post (X, YouTube, or a blog) or an archive link. Instagram and TikTok usually block automated access, so the AI may not be able to read them.
               </div>
               {active.status === 'REVISION_REQUESTED' && (
-                <p className="revision-note">Bạn còn 1 lần sửa bài. Phí vẫn nằm nguyên trong escrow.</p>
+                <p className="revision-note">You have 1 revision left. The fee is still untouched in escrow.</p>
               )}
-              <label className="label">Link bài đăng</label>
+              <label className="label">Post link</label>
               {postUrls.map((url, index) => (
                 <div className="url-row" key={`post-${index}`}>
                   <input
@@ -665,20 +665,20 @@ export default function App() {
                         next[index] = await pasteClipboard();
                         setPostUrls(next);
                       } catch {
-                        setErrorMessage('Không đọc được clipboard.');
+                        setErrorMessage('Could not read the clipboard.');
                       }
                     }}
                   >
-                    <ClipboardPaste size={14} /> Dán
+                    <ClipboardPaste size={14} /> Paste
                   </button>
                 </div>
               ))}
-              <label className="label">Nguồn xác minh độc lập (tối thiểu 2)</label>
+              <label className="label">Independent verification sources (at least 2)</label>
               {refUrls.map((url, index) => (
                 <div className="url-row" key={`ref-${index}`}>
                   <input
                     className="input mono"
-                    placeholder="https:// archive hoặc chính sách nền tảng"
+                    placeholder="https:// archive or platform policy"
                     value={url}
                     onChange={(e) => {
                       const next = [...refUrls];
@@ -695,11 +695,11 @@ export default function App() {
                         next[index] = await pasteClipboard();
                         setRefUrls(next);
                       } catch {
-                        setErrorMessage('Không đọc được clipboard.');
+                        setErrorMessage('Could not read the clipboard.');
                       }
                     }}
                   >
-                    <ClipboardPaste size={14} /> Dán
+                    <ClipboardPaste size={14} /> Paste
                   </button>
                 </div>
               ))}
@@ -712,9 +712,9 @@ export default function App() {
                     setRefUrls([...EXAMPLE_REFERENCE_URLS]);
                   }}
                 >
-                  Điền link mẫu công khai
+                  Fill sample public links
                 </button>
-                <button className="btn-primary" type="submit" disabled={loading}>Nộp bài</button>
+                <button className="btn-primary" type="submit" disabled={loading}>Submit post</button>
               </div>
             </form>
           )}

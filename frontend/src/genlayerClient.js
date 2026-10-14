@@ -74,7 +74,7 @@ export const getReadClient = () => {
 
 export const getWriteClient = (account) => {
   if (typeof window === 'undefined' || !window.ethereum) {
-    throw new Error('Cần MetaMask để ký giao dịch SponsorCheck.');
+    throw new Error('MetaMask is required to sign SponsorCheck transactions.');
   }
   const resolved = resolveReadAccount(account);
   return makeClient({
@@ -85,7 +85,7 @@ export const getWriteClient = (account) => {
 
 export async function ensureStudioNetwork() {
   if (typeof window === 'undefined' || !window.ethereum) {
-    throw new Error('Cần MetaMask để ký giao dịch SponsorCheck.');
+    throw new Error('MetaMask is required to sign SponsorCheck transactions.');
   }
   const chainIdHex = `0x${studionet.id.toString(16)}`;
   const current = await window.ethereum.request({ method: 'eth_chainId' });

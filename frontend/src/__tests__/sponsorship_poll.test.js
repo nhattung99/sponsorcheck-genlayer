@@ -99,8 +99,8 @@ async function run() {
   assertEqual(flowCurrentStep('RESOLVED_COMPLIANT'), 'done', 'compliant is done');
   assert(FLOW_STEPS.length === 4, 'four steps');
   const revision = nextActionHint({ status: 'REVISION_REQUESTED', isBrand: false, isInfluencer: true });
-  assert(revision.title.toLowerCase().includes('1 lần'), 'revision copy names the one fix');
-  assert(statusLabel('PAYOUT_FAILED').includes('lỗi'), 'payout failed is labeled');
+  assert(revision.title.toLowerCase().includes('1 revision'), 'revision copy names the one fix');
+  assert(statusLabel('PAYOUT_FAILED').toLowerCase().includes('failed'), 'payout failed is labeled');
 
   const sample = [EXAMPLE_POST_URL, ...EXAMPLE_REFERENCE_URLS].join(' ').toLowerCase();
   assert(!sample.includes('instagram') && !sample.includes('tiktok'), 'sample links are public pages');
