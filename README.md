@@ -12,7 +12,7 @@ There is no percentage, no tolerance band, and no second money figure. The whole
 
 ## Live app
 
-Not deployed yet. The frontend boots without a contract address (warning banner, writes disabled, no white screen).
+https://sponsorcheck-genlayer.vercel.app
 
 ## Deployed contract
 

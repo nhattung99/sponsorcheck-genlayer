@@ -24,3 +24,4 @@ Thumbs.db
 artifacts/
 scratch/
 .vercel
+.env*
